@@ -1,0 +1,334 @@
+openapi: 3.0.3
+info:
+  title: Swagger Freelancers - OpenAPI 3.0
+  description: |-
+    Freelancers Data Base
+  version: 1.0.11
+servers:
+  - url: http://localhost:8000/
+    description: work with whole data base
+paths: 
+  /api/freelancers/:
+    get:
+      summary: Method of getting of freelancers in data base
+      tags: 
+        - freelancer
+      parameters:
+        - name: s
+          in: query
+          description: The keyword to search in all tax free properties
+          schema: 
+            type: string
+        - name: sort_by
+          in: query
+          description: The field to sort objects by
+          schema: 
+            type: string
+            enum:
+              - id
+              - name
+              - email
+              - phone_number
+              - availability
+              - salary
+              - position
+        - name: sort_type
+          in: query
+          description: The keyword to specify regime of sorting
+          schema: 
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: limit
+          in: query
+          description: The keyword to specify number of freelancers to return
+          schema: 
+            type: integer
+        - name: offset
+          in: query
+          description: The keyword to number of overstepped slices
+          schema: 
+            type: integer
+      operationId: getALLFreelancers
+      responses: 
+        '200': 
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/freelancers'
+        '400':
+          description: some errors had been detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/argumentErrors'
+    post:
+      summary: Method of adding new freelancer in data base
+      tags:
+        - freelancer
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                '$ref': '#/components/schemas/freelancerWithoutId'
+      operationId: postNewFreelancer
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responsePost'
+                
+        '400':
+          description: some errors had been detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationErrors'
+                
+  /api/freelancers/{id}/:
+    get:
+      summary: Method of getting freelancer by id
+      tags:
+        - freelancer
+      operationId: getFreelancerId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id of freelancer
+          schema: 
+            type: integer
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/freelancer'
+                
+        '404':
+          description: id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404byID'
+    put:
+      summary: Method of updating freelancer by id
+      tags:
+        - freelancer
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                '$ref': '#/components/schemas/freelancerWithoutId'
+      operationId: updateFreelancerId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id of freelancer
+          schema: 
+            type: integer
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/freelancerWithoutId'
+        '400':
+          description: some errors had been detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationErrors'
+        '404':
+          description: id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404byID'
+                
+    delete:
+      summary: Method of deleting freelancer by id
+      tags:
+        - freelancer
+      operationId: deleteFreelancerId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id of freelancer
+          schema: 
+            type: integer
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responseDelete'
+
+        '404':
+          description: id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404byID'
+    
+components:
+  schemas:
+    freelancer:
+      type: object
+      required:
+        - name
+        - email
+        - phone_number
+        - availability
+        - salary
+        - position
+      properties:
+        id:
+          type: integer
+          example: 2
+          description: Id of freelancer(automatically generated)
+        name:
+          type: string
+          example: Danylo
+          description: Name of freelancer
+        email:
+          type: string
+          example: roman@gmail.com
+          description: Email of freelancer
+        phone_number:
+          type: string
+          example: '+380923443456'
+          description: Phone number of freelancer
+        availability:
+          type: number
+          example: 56.1
+          description: hours per week that freelancer is willing to work should be in range of 0 to 72
+        salary:
+          type: number
+          example: 37000
+          description: Salary of freelancer
+        position:
+          type: string
+          enum: 
+            - Frontend Developer
+            - Backend Developer
+            - DevOps
+          example: Frontend Developer
+          
+    freelancers:
+      type: array
+      items:
+        $ref: '#/components/schemas/freelancer'
+        example:
+
+    argumentError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: limit
+        message:
+          type: string
+          example: should be natural number
+          
+    argumentErrors:
+      type: array
+      items: 
+        $ref: '#/components/schemas/argumentError'
+        example:
+          
+    responsePost:
+      type: string
+      example:
+        freelancer has been successfully created
+    
+    responseDelete:
+      type: string
+      example:
+        freelancer has been successfully deleted
+        
+    validationError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: email
+        message:
+          type: string
+          example: Is not Valid email
+          
+    validationErrors:
+      type: array
+      items: 
+        $ref: '#/components/schemas/validationError'
+        example:
+        
+    Error404byID:
+      type: string
+      example: 
+        "Freelancer is not found"
+      
+    freelancerWithoutId:
+      type: object
+      required:
+        - name
+        - email
+        - phone_number
+        - availability
+        - salary
+        - position
+      properties:
+        name:
+          type: string
+          example: Danylo
+          description: Name of freelancer
+        email:
+          type: string
+          example: roman@gmail.com
+          description: Email of freelancer
+        phone_number:
+          type: string
+          example: '+380923443456'
+          description: Phone number of freelancer
+        availability:
+          type: number
+          example: 56.1
+          description: hours per week that freelancer is willing to work should be in range of 0 to 72
+        salary:
+          type: number
+          example: 37000
+          description: Salary of freelancer
+        position:
+          type: string
+          enum: 
+            - Frontend Developer
+            - Backend Developer
+            - DevOps
+          example: Frontend Developer
+        
+        
+    
+
+    
+        
+          
+            
+    
+
